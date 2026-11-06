@@ -1,0 +1,7 @@
+hyper-util-wasm 07117dd90174688341c27df2fdeb023c71015e4a
+epoxy-tls 9cde724aea1a0f5e46b1c962b3d19ca1389af074
+epoxy-transport 170cb1c87f916919d4c5f283b73f91afcda068aa
+./epoxy-tls/0001-client-allow-256-KiB-HTTP-2-response-header-blocks-C.patch
+./epoxy-tls/0002-build-take-hyper-util-wasm-from-the-patched-sibling-.patch
+./epoxy-transport/0001-Build-against-the-sibling-epoxy-tls-checkout-epoxy-t.patch
+./hyper-util-wasm/0001-client-expose-http2_max_header_list_size-on-the-lega.patch
