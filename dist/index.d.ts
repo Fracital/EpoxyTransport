@@ -13,6 +13,7 @@ export type EpoxyOptions = {
 };
 export default class EpoxyTransport implements ProxyTransport {
     ready: boolean;
+    private initializing;
     client_version: typeof epoxyInfo;
     client: EpoxyClient;
     wisp: string;
