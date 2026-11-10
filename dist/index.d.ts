@@ -10,6 +10,16 @@ export type EpoxyOptions = {
     redirect_limit?: number;
     header_limit?: number;
     buffer_size?: number;
+    /** PEM certificates trusted next to the web roots (a test's own CA) */
+    pem_files?: string[];
+    /**
+     * A DNS-over-HTTPS endpoint (RFC 8484, e.g.
+     * `https://cloudflare-dns.com/dns-query`) asked for each name's HTTPS
+     * record before a TLS connection to it: with an `ech` config list there
+     * the connection offers real Encrypted Client Hello, as Chrome does.
+     * Unset, every connection sends a GREASE ECH.
+     */
+    ech_dns?: string;
 };
 export default class EpoxyTransport implements ProxyTransport {
     ready: boolean;
