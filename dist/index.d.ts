@@ -1,5 +1,5 @@
 import type { RawHeaders, TransferrableResponse, ProxyTransport } from "@mercuryworkshop/proxy-transports";
-import { EpoxyClient, EpoxyClientOptions, info as epoxyInfo } from "@mercuryworkshop/epoxy-tls";
+import { EpoxyClient, EpoxyClientOptions, info as epoxyInfo } from "@mercuryworkshop/epoxy-tls/epoxy";
 export { epoxyInfo };
 export type EpoxyOptions = {
     wisp_v2?: boolean;
