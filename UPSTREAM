@@ -25,6 +25,7 @@ rustls 0.23.29
 ./epoxy-tls/0057-wisp-split-writes-into-packets-of-64-KiB-each-within.patch
 ./epoxy-tls/0058-client-a-UDP-stream-says-which-close-reason-it-ended.patch
 ./epoxy-tls/0059-client-fall-back-to-no-ECH-when-an-ECH-host-drops-th.patch
+./epoxy-tls/0060-client-do-not-decode-content-encoding-on-a-206-parti.patch
 ./epoxy-transport/0001-Build-against-the-sibling-epoxy-tls-checkout-epoxy-t.patch
 ./epoxy-transport/0002-init-load-the-wasm-module-and-build-the-client-once-.patch
 ./epoxy-transport/0003-connect-report-the-subprotocol-the-server-chose.patch
