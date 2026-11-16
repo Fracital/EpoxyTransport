@@ -7,6 +7,13 @@
  */
 export function connect(host: string, readable: ReadableStream, writable: WritableStream, options: any): Promise<H3Connection>;
 /**
+ * Open a WebTransport session to `url` over the datagram channel.
+ * `options`: `{ origin, protocols?, headers?, hashes?, pem?, timeoutMs? }` (see
+ * API.md in the stream notes); resolves once the server answers the
+ * CONNECT with `:status 200`, rejects with "handshake: ..." otherwise.
+ */
+export function connect_webtransport(url: string, readable: ReadableStream, writable: WritableStream, options: any): Promise<WtSession>;
+/**
  * The `ReadableStreamType` enum.
  *
  * *This API requires the following crate features to be activated: `ReadableStreamType`*
@@ -59,18 +66,134 @@ export class IntoUnderlyingSource {
   pull(controller: ReadableStreamDefaultController): Promise<any>;
   cancel(): void;
 }
+/**
+ * One WebTransport session: streams by handle, datagrams, close.
+ */
+export class WtSession {
+  private constructor();
+  free(): void;
+  /**
+   * The next unidirectional stream from the server; undefined once over
+   */
+  accept_uni(): Promise<any>;
+  /**
+   * The next datagram of the session; undefined once it is over
+   */
+  read_datagram(): Promise<any>;
+  /**
+   * The peer's RESET_STREAM code (WebTransport; 0 for any other), seen
+   * without reading; undefined once the receive side is over another way
+   */
+  reset_received(handle: number): Promise<any>;
+  /**
+   * Up to `max` bytes of what has arrived (undefined at FIN). Rejects
+   * "reset <n>" (the peer's RESET_STREAM, n its WebTransport code, 0 for
+   * any other), "gone" (the session ended).
+   */
+  read(handle: number, max: number): Promise<any>;
+  /**
+   * Resolves once quinn has taken every byte (its flow control and send
+   * buffer are the backpressure). Rejects "stop <n>", "gone".
+   */
+  write(handle: number, data: Uint8Array): Promise<void>;
+  /**
+   * `{ closeCode, reason }` once the session closed cleanly (either side);
+   * rejects "lost ..." when it ended any other way
+   */
+  closed(): Promise<any>;
+  /**
+   * FIN after what was written
+   */
+  finish(handle: number): Promise<void>;
+  /**
+   * A stream of ours, both ways; its header (`40 41 00`) written
+   */
+  open_bi(): Promise<number>;
+  /**
+   * The peer's STOP_SENDING code (WebTransport; 0 for any other); undefined
+   * once the send side is over another way (finished and acknowledged,
+   * reset, the session ended)
+   */
+  stopped(handle: number): Promise<any>;
+  /**
+   * A unidirectional stream of ours; its header (`40 54 00`) written
+   */
+  open_uni(): Promise<number>;
+  /**
+   * The next stream the server opened both ways; undefined once over
+   */
+  accept_bi(): Promise<any>;
+  /**
+   * Send one datagram; false when it cannot go (too large, session over),
+   * dropped as Chrome drops it
+   */
+  send_datagram(data: Uint8Array): boolean;
+  /**
+   * STOP_SENDING with WebTransport code `code`
+   */
+  stop(handle: number, code: number): void;
+  /**
+   * CLOSE_WEBTRANSPORT_SESSION (`code`, `reason` cut to 1024 bytes) and
+   * FIN on the CONNECT stream; streams reset with SESSION_GONE; the
+   * connection closes once that is acknowledged (at most a second)
+   */
+  close(code: number, reason: string): void;
+  /**
+   * RESET_STREAM with WebTransport code `code`
+   */
+  reset(handle: number, code: number): void;
+  /**
+   * Diagnostics: RTT, handshake time, datagram and packet counters
+   */
+  stats(): any;
+  /**
+   * Forget a stream. A direction still open is reset / stopped with
+   * WebTransport code 0 (quinn would otherwise finish it, or stop it with
+   * code 0 outside the WebTransport range).
+   */
+  release(handle: number): void;
+  /**
+   * The largest datagram payload now (0 when the peer takes none)
+   */
+  readonly max_datagram_size: number;
+  /**
+   * The server's `wt-protocol` when it is one of those offered, else ''
+   */
+  readonly protocol: string;
+}
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly __wbg_h3connection_free: (a: number, b: number) => void;
+  readonly __wbg_wtsession_free: (a: number, b: number) => void;
   readonly connect: (a: number, b: number, c: any, d: any, e: any) => any;
+  readonly connect_webtransport: (a: number, b: number, c: any, d: any, e: any) => any;
   readonly h3connection_alive: (a: number) => number;
   readonly h3connection_close: (a: number) => void;
   readonly h3connection_handshake_ms: (a: number) => number;
   readonly h3connection_request: (a: number, b: number, c: number, d: number, e: number, f: any, g: any) => any;
   readonly h3connection_stats: (a: number) => any;
+  readonly wtsession_accept_bi: (a: number) => any;
+  readonly wtsession_accept_uni: (a: number) => any;
+  readonly wtsession_close: (a: number, b: number, c: number, d: number) => void;
+  readonly wtsession_closed: (a: number) => any;
+  readonly wtsession_finish: (a: number, b: number) => any;
+  readonly wtsession_max_datagram_size: (a: number) => number;
+  readonly wtsession_open_bi: (a: number) => any;
+  readonly wtsession_open_uni: (a: number) => any;
+  readonly wtsession_protocol: (a: number) => [number, number];
+  readonly wtsession_read: (a: number, b: number, c: number) => any;
+  readonly wtsession_read_datagram: (a: number) => any;
+  readonly wtsession_release: (a: number, b: number) => void;
+  readonly wtsession_reset: (a: number, b: number, c: number) => void;
+  readonly wtsession_reset_received: (a: number, b: number) => any;
+  readonly wtsession_send_datagram: (a: number, b: number, c: number) => number;
+  readonly wtsession_stats: (a: number) => any;
+  readonly wtsession_stop: (a: number, b: number, c: number) => void;
+  readonly wtsession_stopped: (a: number, b: number) => any;
+  readonly wtsession_write: (a: number, b: number, c: number, d: number) => any;
   readonly ring_core_0_17_14__bn_mul_mont: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
   readonly __wbg_intounderlyingbytesource_free: (a: number, b: number) => void;
   readonly __wbg_intounderlyingsink_free: (a: number, b: number) => void;
@@ -91,9 +214,10 @@ export interface InitOutput {
   readonly __wbindgen_export_3: WebAssembly.Table;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
+  readonly __wbindgen_free: (a: number, b: number, c: number) => void;
   readonly _dyn_core_8592b7f1da481f01___ops__function__FnMut_____Output______as_wasm_bindgen_b3e04dad1803989f___closure__WasmClosure___describe__invoke______: (a: number, b: number) => void;
-  readonly closure161_externref_shim: (a: number, b: number, c: any) => void;
-  readonly closure110_externref_shim: (a: number, b: number, c: any, d: any) => void;
+  readonly closure165_externref_shim: (a: number, b: number, c: any) => void;
+  readonly closure109_externref_shim: (a: number, b: number, c: any, d: any) => void;
   readonly __wbindgen_start: () => void;
 }
 

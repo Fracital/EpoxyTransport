@@ -154,16 +154,40 @@ export function connect(host, readable, writable, options) {
     return ret;
 }
 
+function passArray8ToWasm0(arg, malloc) {
+    const ptr = malloc(arg.length * 1, 1) >>> 0;
+    getUint8ArrayMemory0().set(arg, ptr / 1);
+    WASM_VECTOR_LEN = arg.length;
+    return ptr;
+}
+/**
+ * Open a WebTransport session to `url` over the datagram channel.
+ * `options`: `{ origin, protocols?, headers?, hashes?, pem?, timeoutMs? }` (see
+ * API.md in the stream notes); resolves once the server answers the
+ * CONNECT with `:status 200`, rejects with "handshake: ..." otherwise.
+ * @param {string} url
+ * @param {ReadableStream} readable
+ * @param {WritableStream} writable
+ * @param {any} options
+ * @returns {Promise<WtSession>}
+ */
+export function connect_webtransport(url, readable, writable, options) {
+    const ptr0 = passStringToWasm0(url, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.connect_webtransport(ptr0, len0, readable, writable, options);
+    return ret;
+}
+
 function __wbg_adapter_34(arg0, arg1) {
     wasm._dyn_core_8592b7f1da481f01___ops__function__FnMut_____Output______as_wasm_bindgen_b3e04dad1803989f___closure__WasmClosure___describe__invoke______(arg0, arg1);
 }
 
 function __wbg_adapter_37(arg0, arg1, arg2) {
-    wasm.closure161_externref_shim(arg0, arg1, arg2);
+    wasm.closure165_externref_shim(arg0, arg1, arg2);
 }
 
-function __wbg_adapter_82(arg0, arg1, arg2, arg3) {
-    wasm.closure110_externref_shim(arg0, arg1, arg2, arg3);
+function __wbg_adapter_104(arg0, arg1, arg2, arg3) {
+    wasm.closure109_externref_shim(arg0, arg1, arg2, arg3);
 }
 
 const __wbindgen_enum_ReadableStreamType = ["bytes"];
@@ -377,6 +401,220 @@ export class IntoUnderlyingSource {
     }
 }
 
+const WtSessionFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_wtsession_free(ptr >>> 0, 1));
+/**
+ * One WebTransport session: streams by handle, datagrams, close.
+ */
+export class WtSession {
+
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(WtSession.prototype);
+        obj.__wbg_ptr = ptr;
+        WtSessionFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
+
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        WtSessionFinalization.unregister(this);
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_wtsession_free(ptr, 0);
+    }
+    /**
+     * The next unidirectional stream from the server; undefined once over
+     * @returns {Promise<any>}
+     */
+    accept_uni() {
+        const ret = wasm.wtsession_accept_uni(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * The next datagram of the session; undefined once it is over
+     * @returns {Promise<any>}
+     */
+    read_datagram() {
+        const ret = wasm.wtsession_read_datagram(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * The peer's RESET_STREAM code (WebTransport; 0 for any other), seen
+     * without reading; undefined once the receive side is over another way
+     * @param {number} handle
+     * @returns {Promise<any>}
+     */
+    reset_received(handle) {
+        const ret = wasm.wtsession_reset_received(this.__wbg_ptr, handle);
+        return ret;
+    }
+    /**
+     * Up to `max` bytes of what has arrived (undefined at FIN). Rejects
+     * "reset <n>" (the peer's RESET_STREAM, n its WebTransport code, 0 for
+     * any other), "gone" (the session ended).
+     * @param {number} handle
+     * @param {number} max
+     * @returns {Promise<any>}
+     */
+    read(handle, max) {
+        const ret = wasm.wtsession_read(this.__wbg_ptr, handle, max);
+        return ret;
+    }
+    /**
+     * Resolves once quinn has taken every byte (its flow control and send
+     * buffer are the backpressure). Rejects "stop <n>", "gone".
+     * @param {number} handle
+     * @param {Uint8Array} data
+     * @returns {Promise<void>}
+     */
+    write(handle, data) {
+        const ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.wtsession_write(this.__wbg_ptr, handle, ptr0, len0);
+        return ret;
+    }
+    /**
+     * `{ closeCode, reason }` once the session closed cleanly (either side);
+     * rejects "lost ..." when it ended any other way
+     * @returns {Promise<any>}
+     */
+    closed() {
+        const ret = wasm.wtsession_closed(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * FIN after what was written
+     * @param {number} handle
+     * @returns {Promise<void>}
+     */
+    finish(handle) {
+        const ret = wasm.wtsession_finish(this.__wbg_ptr, handle);
+        return ret;
+    }
+    /**
+     * A stream of ours, both ways; its header (`40 41 00`) written
+     * @returns {Promise<number>}
+     */
+    open_bi() {
+        const ret = wasm.wtsession_open_bi(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * The peer's STOP_SENDING code (WebTransport; 0 for any other); undefined
+     * once the send side is over another way (finished and acknowledged,
+     * reset, the session ended)
+     * @param {number} handle
+     * @returns {Promise<any>}
+     */
+    stopped(handle) {
+        const ret = wasm.wtsession_stopped(this.__wbg_ptr, handle);
+        return ret;
+    }
+    /**
+     * A unidirectional stream of ours; its header (`40 54 00`) written
+     * @returns {Promise<number>}
+     */
+    open_uni() {
+        const ret = wasm.wtsession_open_uni(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * The next stream the server opened both ways; undefined once over
+     * @returns {Promise<any>}
+     */
+    accept_bi() {
+        const ret = wasm.wtsession_accept_bi(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Send one datagram; false when it cannot go (too large, session over),
+     * dropped as Chrome drops it
+     * @param {Uint8Array} data
+     * @returns {boolean}
+     */
+    send_datagram(data) {
+        const ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.wtsession_send_datagram(this.__wbg_ptr, ptr0, len0);
+        return ret !== 0;
+    }
+    /**
+     * The largest datagram payload now (0 when the peer takes none)
+     * @returns {number}
+     */
+    get max_datagram_size() {
+        const ret = wasm.wtsession_max_datagram_size(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * STOP_SENDING with WebTransport code `code`
+     * @param {number} handle
+     * @param {number} code
+     */
+    stop(handle, code) {
+        wasm.wtsession_stop(this.__wbg_ptr, handle, code);
+    }
+    /**
+     * CLOSE_WEBTRANSPORT_SESSION (`code`, `reason` cut to 1024 bytes) and
+     * FIN on the CONNECT stream; streams reset with SESSION_GONE; the
+     * connection closes once that is acknowledged (at most a second)
+     * @param {number} code
+     * @param {string} reason
+     */
+    close(code, reason) {
+        const ptr0 = passStringToWasm0(reason, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.wtsession_close(this.__wbg_ptr, code, ptr0, len0);
+    }
+    /**
+     * RESET_STREAM with WebTransport code `code`
+     * @param {number} handle
+     * @param {number} code
+     */
+    reset(handle, code) {
+        wasm.wtsession_reset(this.__wbg_ptr, handle, code);
+    }
+    /**
+     * Diagnostics: RTT, handshake time, datagram and packet counters
+     * @returns {any}
+     */
+    stats() {
+        const ret = wasm.wtsession_stats(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Forget a stream. A direction still open is reset / stopped with
+     * WebTransport code 0 (quinn would otherwise finish it, or stop it with
+     * code 0 outside the WebTransport range).
+     * @param {number} handle
+     */
+    release(handle) {
+        wasm.wtsession_release(this.__wbg_ptr, handle);
+    }
+    /**
+     * The server's `wt-protocol` when it is one of those offered, else ''
+     * @returns {string}
+     */
+    get protocol() {
+        let deferred1_0;
+        let deferred1_1;
+        try {
+            const ret = wasm.wtsession_protocol(this.__wbg_ptr);
+            deferred1_0 = ret[0];
+            deferred1_1 = ret[1];
+            return getStringFromWasm0(ret[0], ret[1]);
+        } finally {
+            wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+        }
+    }
+}
+
 async function __wbg_load(module, imports) {
     if (typeof Response === 'function' && module instanceof Response) {
         if (typeof WebAssembly.instantiateStreaming === 'function') {
@@ -510,6 +748,10 @@ function __wbg_get_imports() {
         const ret = result;
         return ret;
     };
+    imports.wbg.__wbg_isArray_a1eab7e0d067391b = function(arg0) {
+        const ret = Array.isArray(arg0);
+        return ret;
+    };
     imports.wbg.__wbg_length_a446193dc22c12f8 = function(arg0) {
         const ret = arg0.length;
         return ret;
@@ -529,7 +771,7 @@ function __wbg_get_imports() {
                 const a = state0.a;
                 state0.a = 0;
                 try {
-                    return __wbg_adapter_82(a, state0.b, arg0, arg1);
+                    return __wbg_adapter_104(a, state0.b, arg0, arg1);
                 } finally {
                     state0.a = a;
                 }
@@ -679,6 +921,10 @@ function __wbg_get_imports() {
         const ret = arg0.write(arg1);
         return ret;
     };
+    imports.wbg.__wbg_wtsession_new = function(arg0) {
+        const ret = WtSession.__wrap(arg0);
+        return ret;
+    };
     imports.wbg.__wbindgen_cb_drop = function(arg0) {
         const obj = arg0.original;
         if (obj.cnt-- == 1) {
@@ -688,12 +934,12 @@ function __wbg_get_imports() {
         const ret = false;
         return ret;
     };
-    imports.wbg.__wbindgen_closure_wrapper1352 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 94, __wbg_adapter_34);
+    imports.wbg.__wbindgen_closure_wrapper1690 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 93, __wbg_adapter_34);
         return ret;
     };
-    imports.wbg.__wbindgen_closure_wrapper4165 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 94, __wbg_adapter_37);
+    imports.wbg.__wbindgen_closure_wrapper4536 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 93, __wbg_adapter_37);
         return ret;
     };
     imports.wbg.__wbindgen_init_externref_table = function() {
