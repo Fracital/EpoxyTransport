@@ -28,6 +28,7 @@ rustls 0.23.29
 ./epoxy-tls/0060-client-do-not-decode-content-encoding-on-a-206-parti.patch
 ./epoxy-tls/0061-websocket-flush-every-frame-written.patch
 ./epoxy-tls/0062-client-a-partition-of-its-own-pool-and-TLS-session-c.patch
+./epoxy-tls/0063-client-a-response-says-which-HTTP-version-it-came-ov.patch
 ./epoxy-transport/0001-Build-against-the-sibling-epoxy-tls-checkout-epoxy-t.patch
 ./epoxy-transport/0002-init-load-the-wasm-module-and-build-the-client-once-.patch
 ./epoxy-transport/0003-connect-report-the-subprotocol-the-server-chose.patch
@@ -36,6 +37,7 @@ rustls 0.23.29
 ./epoxy-transport/0052-ech_dns-ECH-configs-from-HTTPS-records-over-DoH-pem_.patch
 ./epoxy-transport/0053-build-ship-the-epoxy-wasm-as-a-separate-file-not-bas.patch
 ./epoxy-transport/0054-request-each-network-partition-on-a-pool-of-its-own-.patch
+./epoxy-transport/0055-request-pass-on-the-HTTP-version-a-response-came-ove.patch
 ./h2-wasm/0050-client-send-pseudo-headers-in-Chrome-s-order-method-.patch
 ./h2-wasm/0051-client-open-each-request-with-a-HEADERS-priority-as-.patch
 ./h2-wasm/0052-client-hang-each-request-stream-in-Chrome-s-priority.patch

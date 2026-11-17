@@ -1704,7 +1704,9 @@ var EpoxyTransport = class {
   fieldSupport = {
     acceptEncoding: "gzip, deflate, br, zstd",
     priority: true,
-    partition: PARTITION_FIELD
+    partition: PARTITION_FIELD,
+    // each response says which HTTP version it came over (httpVersion)
+    httpVersion: true
   };
   /** by name, the one used longest ago first */
   partitions = /* @__PURE__ */ new Map();
@@ -1789,7 +1791,10 @@ var EpoxyTransport = class {
         body: res.body,
         headers: headersEntries,
         status: res.status,
-        statusText: res.statusText
+        statusText: res.statusText,
+        // "1.1", "2" and so on: a host queues HTTP/1 requests six to a
+        // server as a browser does, and lets HTTP/2 ones go
+        httpVersion: res.httpVersion
       };
     } catch (err) {
       console.error(err);

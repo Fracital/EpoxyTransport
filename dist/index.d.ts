@@ -37,6 +37,7 @@ export default class EpoxyTransport implements ProxyTransport {
         acceptEncoding: string;
         priority: boolean;
         partition: string;
+        httpVersion: boolean;
     };
     /** by name, the one used longest ago first */
     private partitions;
