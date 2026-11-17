@@ -282,33 +282,40 @@ function _assertClass(instance, klass) {
   }
 }
 function __wbg_adapter_34(arg0, arg1, arg2) {
-  wasm._dyn_core_3c3d3389831ee595___ops__function__FnMut_______Output______as_wasm_bindgen_fd056f58bc094012___closure__WasmClosure___describe__invoke___wasm_bindgen_fd056f58bc094012___JsValue_____(arg0, arg1, addHeapObject(arg2));
+  wasm._dyn_core_b6521fbd9e119782___ops__function__FnMut_______Output______as_wasm_bindgen_aa0d21bd73a77a28___closure__WasmClosure___describe__invoke___wasm_bindgen_aa0d21bd73a77a28___JsValue_____(arg0, arg1, addHeapObject(arg2));
 }
 function __wbg_adapter_37(arg0, arg1, arg2) {
-  const ret = wasm._dyn_core_3c3d3389831ee595___ops__function__Fn_______Output______as_wasm_bindgen_fd056f58bc094012___closure__WasmClosure___describe__invoke___wasm_bindgen_fd056f58bc094012___JsValue__js_sys_66fac90420b2df2___Promise_(arg0, arg1, addHeapObject(arg2));
+  const ret = wasm._dyn_core_b6521fbd9e119782___ops__function__Fn_______Output______as_wasm_bindgen_aa0d21bd73a77a28___closure__WasmClosure___describe__invoke___wasm_bindgen_aa0d21bd73a77a28___JsValue__js_sys_6958a193a86e6334___Promise_(arg0, arg1, addHeapObject(arg2));
   return takeObject(ret);
 }
 function __wbg_adapter_40(arg0, arg1, arg2) {
-  wasm._dyn_core_3c3d3389831ee595___ops__function__Fn_______Output______as_wasm_bindgen_fd056f58bc094012___closure__WasmClosure___describe__invoke___wasm_bindgen_fd056f58bc094012___JsValue_____(arg0, arg1, addHeapObject(arg2));
+  wasm._dyn_core_b6521fbd9e119782___ops__function__Fn_______Output______as_wasm_bindgen_aa0d21bd73a77a28___closure__WasmClosure___describe__invoke___wasm_bindgen_aa0d21bd73a77a28___JsValue_____(arg0, arg1, addHeapObject(arg2));
 }
 function __wbg_adapter_45(arg0, arg1) {
-  const ret = wasm._dyn_core_3c3d3389831ee595___ops__function__Fn_____Output______as_wasm_bindgen_fd056f58bc094012___closure__WasmClosure___describe__invoke___wasm_bindgen_fd056f58bc094012___JsValue_(arg0, arg1);
+  const ret = wasm._dyn_core_b6521fbd9e119782___ops__function__Fn_____Output______as_wasm_bindgen_aa0d21bd73a77a28___closure__WasmClosure___describe__invoke___wasm_bindgen_aa0d21bd73a77a28___JsValue_(arg0, arg1);
   return takeObject(ret);
 }
 function __wbg_adapter_48(arg0, arg1) {
-  wasm._dyn_core_3c3d3389831ee595___ops__function__Fn_____Output______as_wasm_bindgen_fd056f58bc094012___closure__WasmClosure___describe__invoke______(arg0, arg1);
+  wasm._dyn_core_b6521fbd9e119782___ops__function__Fn_____Output______as_wasm_bindgen_aa0d21bd73a77a28___closure__WasmClosure___describe__invoke______(arg0, arg1);
 }
 function __wbg_adapter_51(arg0, arg1) {
-  wasm._dyn_core_3c3d3389831ee595___ops__function__FnMut_____Output______as_wasm_bindgen_fd056f58bc094012___closure__WasmClosure___describe__invoke______(arg0, arg1);
+  wasm._dyn_core_b6521fbd9e119782___ops__function__FnMut_____Output______as_wasm_bindgen_aa0d21bd73a77a28___closure__WasmClosure___describe__invoke______(arg0, arg1);
 }
-function __wbg_adapter_163(arg0, arg1, arg2, arg3) {
-  wasm.wasm_bindgen_fd056f58bc094012___convert__closures__invoke2_mut___wasm_bindgen_fd056f58bc094012___JsValue__wasm_bindgen_fd056f58bc094012___JsValue_____(arg0, arg1, addHeapObject(arg2), addHeapObject(arg3));
+function __wbg_adapter_164(arg0, arg1, arg2, arg3) {
+  wasm.wasm_bindgen_aa0d21bd73a77a28___convert__closures__invoke2_mut___wasm_bindgen_aa0d21bd73a77a28___JsValue__wasm_bindgen_aa0d21bd73a77a28___JsValue_____(arg0, arg1, addHeapObject(arg2), addHeapObject(arg3));
 }
 var __wbindgen_enum_BinaryType = ["blob", "arraybuffer"];
 var EpoxyClientFinalization = typeof FinalizationRegistry === "undefined" ? { register: () => {
 }, unregister: () => {
 } } : new FinalizationRegistry((ptr) => wasm.__wbg_epoxyclient_free(ptr >>> 0, 1));
-var EpoxyClient = class {
+var EpoxyClient = class _EpoxyClient {
+  static __wrap(ptr) {
+    ptr = ptr >>> 0;
+    const obj = Object.create(_EpoxyClient.prototype);
+    obj.__wbg_ptr = ptr;
+    EpoxyClientFinalization.register(obj, obj.__wbg_ptr, obj);
+    return obj;
+  }
   toJSON() {
     return {
       redirect_limit: this.redirect_limit,
@@ -459,6 +466,18 @@ var EpoxyClient = class {
     } finally {
       wasm.__wbindgen_add_to_stack_pointer(16);
     }
+  }
+  /**
+   * A client of its own connection pool and TLS session caches over this
+   * client's wisp connection: a network partition's (a browser keeps
+   * apart what pages of different top-level sites connect to, and every
+   * connection is a wisp stream, so the partition opens no new wisp
+   * connection)
+   * @returns {EpoxyClient}
+   */
+  partition() {
+    const ret = wasm.epoxyclient_partition(this.__wbg_ptr);
+    return _EpoxyClient.__wrap(ret);
   }
 };
 var EpoxyClientOptionsFinalization = typeof FinalizationRegistry === "undefined" ? { register: () => {
@@ -1158,7 +1177,7 @@ function __wbg_get_imports() {
         const a = state0.a;
         state0.a = 0;
         try {
-          return __wbg_adapter_163(a, state0.b, arg02, arg12);
+          return __wbg_adapter_164(a, state0.b, arg02, arg12);
         } finally {
           state0.a = a;
         }
@@ -1421,31 +1440,31 @@ function __wbg_get_imports() {
     const ret = false;
     return ret;
   };
-  imports.wbg.__wbindgen_closure_wrapper5131 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper5140 = function(arg0, arg1, arg2) {
     const ret = makeMutClosure(arg0, arg1, 182, __wbg_adapter_51);
     return addHeapObject(ret);
   };
-  imports.wbg.__wbindgen_closure_wrapper868 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper896 = function(arg0, arg1, arg2) {
     const ret = makeMutClosure(arg0, arg1, 182, __wbg_adapter_34);
     return addHeapObject(ret);
   };
-  imports.wbg.__wbindgen_closure_wrapper942 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper936 = function(arg0, arg1, arg2) {
     const ret = makeClosure(arg0, arg1, 18, __wbg_adapter_37);
     return addHeapObject(ret);
   };
-  imports.wbg.__wbindgen_closure_wrapper944 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper938 = function(arg0, arg1, arg2) {
     const ret = makeClosure(arg0, arg1, 22, __wbg_adapter_40);
     return addHeapObject(ret);
   };
-  imports.wbg.__wbindgen_closure_wrapper946 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper940 = function(arg0, arg1, arg2) {
     const ret = makeClosure(arg0, arg1, 22, __wbg_adapter_40);
     return addHeapObject(ret);
   };
-  imports.wbg.__wbindgen_closure_wrapper948 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper942 = function(arg0, arg1, arg2) {
     const ret = makeClosure(arg0, arg1, 18, __wbg_adapter_45);
     return addHeapObject(ret);
   };
-  imports.wbg.__wbindgen_closure_wrapper950 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper944 = function(arg0, arg1, arg2) {
     const ret = makeClosure(arg0, arg1, 22, __wbg_adapter_48);
     return addHeapObject(ret);
   };
@@ -1673,6 +1692,9 @@ function loadEpoxy() {
   );
   return epoxyLoaded;
 }
+var PARTITION_FIELD = "$stomp$network";
+var PARTITION_IDLE_MS = 5 * 60 * 1e3;
+var PARTITIONS_KEPT = 64;
 var EpoxyTransport = class {
   ready = false;
   // What this build does with the request fields a host sends in Chrome's
@@ -1681,8 +1703,11 @@ var EpoxyTransport = class {
   // over HTTP/2 only, as Chrome does, leaving it out of HTTP/1 requests.
   fieldSupport = {
     acceptEncoding: "gzip, deflate, br, zstd",
-    priority: true
+    priority: true,
+    partition: PARTITION_FIELD
   };
+  /** by name, the one used longest ago first */
+  partitions = /* @__PURE__ */ new Map();
   initializing = null;
   client_version;
   client = null;
@@ -1728,9 +1753,14 @@ var EpoxyTransport = class {
   }
   async request(remote, method, body, headers, signal) {
     if (body instanceof Blob) body = await body.arrayBuffer();
+    let partition = null;
     try {
       let headersObj = {};
       for (let [key, value] of headers) {
+        if (key.toLowerCase() === PARTITION_FIELD) {
+          partition = this.partition(value);
+          continue;
+        }
         if (headersObj[key]) {
           console.warn(
             `Duplicate header key "${key}" detected. Overwriting previous value.`
@@ -1738,7 +1768,8 @@ var EpoxyTransport = class {
         }
         headersObj[key] = value;
       }
-      let res = await this.client.fetch(remote.href, {
+      if (partition) partition.inFlight++;
+      let res = await (partition?.client ?? this.client).fetch(remote.href, {
         method,
         body,
         headers: headersObj,
@@ -1763,7 +1794,37 @@ var EpoxyTransport = class {
     } catch (err) {
       console.error(err);
       throw err;
+    } finally {
+      if (partition) {
+        partition.inFlight--;
+        partition.used = Date.now();
+      }
     }
+  }
+  /** the client of the partition `name`, made over this client's wisp connection the first time */
+  partition(name) {
+    const now = Date.now();
+    const kept = this.partitions.get(name);
+    if (kept) {
+      this.partitions.delete(name);
+      this.partitions.set(name, kept);
+      kept.used = now;
+      return kept;
+    }
+    let over = this.partitions.size + 1 - PARTITIONS_KEPT;
+    for (const [other, partition2] of this.partitions) {
+      if (partition2.inFlight) continue;
+      if (now - partition2.used < PARTITION_IDLE_MS && over <= 0) continue;
+      this.partitions.delete(other);
+      over--;
+    }
+    const partition = { client: this.client.partition(), inFlight: 0, used: now };
+    this.partitions.set(name, partition);
+    return partition;
+  }
+  /** the partitions kept now, by name */
+  partitionNames() {
+    return [...this.partitions.keys()];
   }
   connect(url, protocols, requestHeaders, onopen, onmessage, onclose, onerror) {
     let handlers = new EpoxyHandlers(
@@ -1806,6 +1867,7 @@ var EpoxyTransport = class {
   }
 };
 export {
+  PARTITION_FIELD,
   EpoxyTransport as default,
   info as epoxyInfo
 };
