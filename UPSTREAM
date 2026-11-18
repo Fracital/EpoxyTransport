@@ -36,6 +36,7 @@ rustls 0.23.29
 ./epoxy-tls/0072-client-RSA-keys-of-every-size-Chrome-takes.patch
 ./epoxy-tls/0073-client-send-a-request-again-when-Chrome-would-after-.patch
 ./epoxy-tls/0074-client-a-write-of-bytes-is-taken-as-it-is-without-a-.patch
+./epoxy-tls/0075-client-a-function-transport-s-writes-never-wait-so-c.patch
 ./epoxy-transport/0001-Build-against-the-sibling-epoxy-tls-checkout-epoxy-t.patch
 ./epoxy-transport/0002-init-load-the-wasm-module-and-build-the-client-once-.patch
 ./epoxy-transport/0003-connect-report-the-subprotocol-the-server-chose.patch
