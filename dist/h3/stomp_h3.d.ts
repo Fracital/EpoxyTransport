@@ -30,7 +30,7 @@ export class H3Connection {
    * `body` is null, a Uint8Array, or a ReadableStream of Uint8Array.
    * Resolves to `{ status, headers: [name, value][], body: ReadableStream | null }`
    * once the response head arrives; the body streams after that, decoded
-   * from gzip or br the way epoxy decodes it.
+   * from gzip, deflate, br or zstd the way epoxy decodes it.
    */
   request(method: string, url: string, headers: Array<any>, body: any): Promise<any>;
   close(): void;
@@ -208,6 +208,14 @@ export interface InitOutput {
   readonly intounderlyingsink_write: (a: number, b: any) => any;
   readonly intounderlyingsource_cancel: (a: number) => void;
   readonly intounderlyingsource_pull: (a: number, b: any) => any;
+  readonly rust_zstd_wasm_shim_calloc: (a: number, b: number) => number;
+  readonly rust_zstd_wasm_shim_free: (a: number) => void;
+  readonly rust_zstd_wasm_shim_malloc: (a: number) => number;
+  readonly rust_zstd_wasm_shim_memcmp: (a: number, b: number, c: number) => number;
+  readonly rust_zstd_wasm_shim_memcpy: (a: number, b: number, c: number) => number;
+  readonly rust_zstd_wasm_shim_memmove: (a: number, b: number, c: number) => number;
+  readonly rust_zstd_wasm_shim_memset: (a: number, b: number, c: number) => number;
+  readonly rust_zstd_wasm_shim_qsort: (a: number, b: number, c: number, d: number) => void;
   readonly __externref_table_alloc: () => number;
   readonly __wbindgen_export_1: WebAssembly.Table;
   readonly __wbindgen_exn_store: (a: number) => void;
@@ -217,7 +225,7 @@ export interface InitOutput {
   readonly __wbindgen_free: (a: number, b: number, c: number) => void;
   readonly _dyn_core_8592b7f1da481f01___ops__function__FnMut_____Output______as_wasm_bindgen_b3e04dad1803989f___closure__WasmClosure___describe__invoke______: (a: number, b: number) => void;
   readonly closure165_externref_shim: (a: number, b: number, c: any) => void;
-  readonly closure109_externref_shim: (a: number, b: number, c: any, d: any) => void;
+  readonly closure110_externref_shim: (a: number, b: number, c: any, d: any) => void;
   readonly __wbindgen_start: () => void;
 }
 

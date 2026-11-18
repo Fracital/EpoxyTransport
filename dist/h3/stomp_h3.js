@@ -187,7 +187,7 @@ function __wbg_adapter_37(arg0, arg1, arg2) {
 }
 
 function __wbg_adapter_104(arg0, arg1, arg2, arg3) {
-    wasm.closure109_externref_shim(arg0, arg1, arg2, arg3);
+    wasm.closure110_externref_shim(arg0, arg1, arg2, arg3);
 }
 
 const __wbindgen_enum_ReadableStreamType = ["bytes"];
@@ -224,7 +224,7 @@ export class H3Connection {
      * `body` is null, a Uint8Array, or a ReadableStream of Uint8Array.
      * Resolves to `{ status, headers: [name, value][], body: ReadableStream | null }`
      * once the response head arrives; the body streams after that, decoded
-     * from gzip or br the way epoxy decodes it.
+     * from gzip, deflate, br or zstd the way epoxy decodes it.
      * @param {string} method
      * @param {string} url
      * @param {Array<any>} headers
@@ -934,11 +934,11 @@ function __wbg_get_imports() {
         const ret = false;
         return ret;
     };
-    imports.wbg.__wbindgen_closure_wrapper1690 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper1710 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 93, __wbg_adapter_34);
         return ret;
     };
-    imports.wbg.__wbindgen_closure_wrapper4536 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper4566 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 93, __wbg_adapter_37);
         return ret;
     };
