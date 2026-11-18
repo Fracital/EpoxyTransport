@@ -33,6 +33,7 @@ rustls 0.23.29
 ./epoxy-tls/0065-client-TLS-sessions-are-kept-as-Chrome-keeps-them-by.patch
 ./epoxy-tls/0070-client-give-the-plain-X25519-key-share-a-key-of-its-.patch
 ./epoxy-tls/0071-client-an-empty-PATCH-request-says-no-Content-Length.patch
+./epoxy-tls/0072-client-RSA-keys-of-every-size-Chrome-takes.patch
 ./epoxy-transport/0001-Build-against-the-sibling-epoxy-tls-checkout-epoxy-t.patch
 ./epoxy-transport/0002-init-load-the-wasm-module-and-build-the-client-once-.patch
 ./epoxy-transport/0003-connect-report-the-subprotocol-the-server-chose.patch
