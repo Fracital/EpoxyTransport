@@ -1,5 +1,7 @@
 import type { RawHeaders, TransferrableResponse, ProxyTransport } from "@mercuryworkshop/proxy-transports";
 import { EpoxyClient, EpoxyClientOptions, info as epoxyInfo } from "@mercuryworkshop/epoxy-tls/epoxy";
+import { type EchCache } from "./ech";
+export type { EchCache, EchCacheEntry } from "./ech";
 export { epoxyInfo };
 export type EpoxyOptions = {
     wisp_v2?: boolean;
@@ -20,6 +22,12 @@ export type EpoxyOptions = {
      * Unset, every connection sends a GREASE ECH.
      */
     ech_dns?: string;
+    /**
+     * Where the `ech_dns` answers are kept across the realm's end (a
+     * reload), each until its TTL runs out: the host's store, say IndexedDB.
+     * Unset, they are kept in this transport only.
+     */
+    ech_cache?: EchCache;
 };
 /**
  * The request field a host names a request's network partition in (its
@@ -41,6 +49,8 @@ export default class EpoxyTransport implements ProxyTransport {
     };
     /** by name, the one used longest ago first */
     private partitions;
+    /** the `ech_dns` lookups, per partition, when there is a DoH endpoint */
+    private ech;
     private initializing;
     client_version: typeof epoxyInfo;
     client: EpoxyClient;

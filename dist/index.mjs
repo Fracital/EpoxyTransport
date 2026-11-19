@@ -472,11 +472,14 @@ var EpoxyClient = class _EpoxyClient {
    * client's wisp connection: a network partition's (a browser keeps
    * apart what pages of different top-level sites connect to, and every
    * connection is a wisp stream, so the partition opens no new wisp
-   * connection)
+   * connection). `ech_resolver`, when given, is the partition's own
+   * (a browser keys its host cache, HTTPS records included, by the
+   * partition too); without it the partition asks this client's.
+   * @param {Function | null} [ech_resolver]
    * @returns {EpoxyClient}
    */
-  partition() {
-    const ret = wasm.epoxyclient_partition(this.__wbg_ptr);
+  partition(ech_resolver) {
+    const ret = wasm.epoxyclient_partition(this.__wbg_ptr, isLikeNone(ech_resolver) ? 0 : addHeapObject(ech_resolver));
     return _EpoxyClient.__wrap(ret);
   }
 };
@@ -1433,31 +1436,31 @@ function __wbg_get_imports() {
     const ret = false;
     return ret;
   };
-  imports.wbg.__wbindgen_closure_wrapper5498 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper5500 = function(arg0, arg1, arg2) {
     const ret = makeMutClosure(arg0, arg1, 187, __wbg_adapter_51);
     return addHeapObject(ret);
   };
-  imports.wbg.__wbindgen_closure_wrapper894 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper897 = function(arg0, arg1, arg2) {
     const ret = makeMutClosure(arg0, arg1, 187, __wbg_adapter_34);
     return addHeapObject(ret);
   };
-  imports.wbg.__wbindgen_closure_wrapper971 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper974 = function(arg0, arg1, arg2) {
     const ret = makeClosure(arg0, arg1, 18, __wbg_adapter_37);
     return addHeapObject(ret);
   };
-  imports.wbg.__wbindgen_closure_wrapper973 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper976 = function(arg0, arg1, arg2) {
     const ret = makeClosure(arg0, arg1, 22, __wbg_adapter_40);
     return addHeapObject(ret);
   };
-  imports.wbg.__wbindgen_closure_wrapper975 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper978 = function(arg0, arg1, arg2) {
     const ret = makeClosure(arg0, arg1, 22, __wbg_adapter_40);
     return addHeapObject(ret);
   };
-  imports.wbg.__wbindgen_closure_wrapper977 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper980 = function(arg0, arg1, arg2) {
     const ret = makeClosure(arg0, arg1, 18, __wbg_adapter_45);
     return addHeapObject(ret);
   };
-  imports.wbg.__wbindgen_closure_wrapper979 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper982 = function(arg0, arg1, arg2) {
     const ret = makeClosure(arg0, arg1, 22, __wbg_adapter_48);
     return addHeapObject(ret);
   };
@@ -1562,10 +1565,11 @@ var epoxy_default = __wbg_init;
 var info = { version: "2.1.20-1", minimal: false, release: true, commit: "9cde724aea1a0f5e46b1c962b3d19ca1389af074" };
 
 // src/ech.ts
+var TYPE_CNAME = 5;
+var TYPE_SOA = 6;
 var TYPE_HTTPS = 65;
 var KEY_ECH = 5;
-var NEGATIVE_MS = 5 * 60 * 1e3;
-var MIN_TTL_MS = 60 * 1e3;
+var FAILED_MS = 30 * 1e3;
 var MAX_TTL_MS = 24 * 60 * 60 * 1e3;
 var WAIT_MS = 1500;
 function httpsQuery(name) {
@@ -1591,67 +1595,119 @@ function skipName(view, offset) {
     offset += len + 1;
   }
 }
-function parseEch(message) {
+function parseHttps(message) {
   const view = new DataView(message);
-  if (view.byteLength < 12 || (view.getUint8(3) & 15) !== 0) return null;
+  if (view.byteLength < 12) throw new Error("short DNS message");
+  const rcode = view.getUint8(3) & 15;
+  if (rcode !== 0 && rcode !== 3) throw new Error(`DNS rcode ${rcode}`);
   const questions = view.getUint16(4);
   const answers = view.getUint16(6);
+  const authorities = view.getUint16(8);
   let offset = 12;
   for (let i = 0; i < questions; i++) offset = skipName(view, offset) + 4;
+  let ttl = null;
+  const least = (value) => ttl = ttl === null ? value : Math.min(ttl, value);
+  let found = null;
+  let record = false;
   for (let i = 0; i < answers; i++) {
     offset = skipName(view, offset);
     const type = view.getUint16(offset);
-    const ttl = view.getUint32(offset + 4);
+    const rrTtl = view.getUint32(offset + 4);
     const start = offset + 10;
     const end = start + view.getUint16(offset + 8);
     offset = end;
-    if (type !== TYPE_HTTPS || end > view.byteLength) continue;
+    if (end > view.byteLength) break;
+    if (type === TYPE_CNAME) {
+      least(rrTtl);
+      continue;
+    }
+    if (type !== TYPE_HTTPS || record) continue;
+    record = true;
+    least(rrTtl);
     if (view.getUint16(start) === 0) continue;
     for (let at = skipName(view, start + 2); at + 4 <= end; ) {
       const key = view.getUint16(at);
       const len = view.getUint16(at + 2);
-      if (key === KEY_ECH && at + 4 + len <= end)
-        return { ech: new Uint8Array(message.slice(at + 4, at + 4 + len)), ttl };
+      if (key === KEY_ECH && at + 4 + len <= end) {
+        found = new Uint8Array(message.slice(at + 4, at + 4 + len));
+        break;
+      }
       at += 4 + len;
     }
-    return null;
   }
-  return null;
+  if (record) return { ech: found, ttl };
+  for (let i = 0; i < authorities; i++) {
+    offset = skipName(view, offset);
+    if (offset + 10 > view.byteLength) break;
+    const type = view.getUint16(offset);
+    const rrTtl = view.getUint32(offset + 4);
+    const start = offset + 10;
+    const end = start + view.getUint16(offset + 8);
+    offset = end;
+    if (type !== TYPE_SOA || end > view.byteLength) continue;
+    const fixed = skipName(view, skipName(view, start));
+    if (fixed + 20 > end) continue;
+    const minimum = view.getUint32(fixed + 16);
+    return { ech: null, ttl: Math.min(rrTtl, minimum) };
+  }
+  return { ech: null, ttl: null };
 }
-var EchResolver = class {
+var EchResolver = class _EchResolver {
   #dns;
   #fetch;
+  #store;
   #cache = /* @__PURE__ */ new Map();
-  constructor(dns, fetch2) {
+  /** settles once the host's kept answers are in */
+  #loading = null;
+  constructor(dns, fetch2, store) {
     this.#dns = new URL(dns);
     this.#fetch = fetch2;
+    this.#store = store ?? null;
+    if (this.#store)
+      this.#loading = this.#store.load().then((entries) => {
+        const now = Date.now();
+        for (const { key, ech, until } of entries)
+          if (until > now && !this.#cache.has(key))
+            this.#cache.set(key, { until, value: Promise.resolve(ech) });
+      }).catch(() => {
+      }).finally(() => this.#loading = null);
   }
-  /** what epoxy-tls's `ech_resolver` is given */
-  resolve = (host) => {
+  /** the key of `name` in `partition` ("" for requests that name none) */
+  static key(partition, name) {
+    return `${partition}
+${name}`;
+  }
+  /** what epoxy-tls's `ech_resolver` is given: the main client's lookups */
+  resolve = (host) => this.resolveIn("", host);
+  /** a lookup of `host` for the network partition `partition` (EpoxyClient.partition's resolver) */
+  resolveIn(partition, host) {
     const name = host.toLowerCase().replace(/\.$/, "");
     if (name === this.#dns.hostname || !name.includes(".") || /^[\d.]+$|:|^\[/.test(name) || /(^|\.)(localhost|local|internal|test|invalid)$/.test(name))
       return Promise.resolve(null);
-    const cached = this.#cache.get(name);
+    if (this.#loading) return this.#loading.then(() => this.resolveIn(partition, host));
+    const key = _EchResolver.key(partition, name);
+    const cached = this.#cache.get(key);
     if (cached && cached.until > Date.now()) return wait(cached.value);
-    const entry = { until: Date.now() + NEGATIVE_MS, value: this.#ask(name) };
-    this.#cache.set(name, entry);
+    const entry = { until: Infinity, value: null };
+    entry.value = this.#ask(key, name, entry);
+    this.#cache.set(key, entry);
     return wait(entry.value);
-  };
-  async #ask(name) {
+  }
+  async #ask(key, name, entry) {
     const url = new URL(this.#dns);
     url.searchParams.set("dns", base64url(httpsQuery(name)));
+    let answer;
     try {
-      const found = parseEch(
-        await this.#fetch(url.href, "application/dns-message")
-      );
-      if (!found) return null;
-      const entry = this.#cache.get(name);
-      if (entry)
-        entry.until = Date.now() + Math.min(Math.max(found.ttl * 1e3, MIN_TTL_MS), MAX_TTL_MS);
-      return found.ech;
+      answer = parseHttps(await this.#fetch(url.href, "application/dns-message"));
     } catch {
+      entry.until = Date.now() + FAILED_MS;
       return null;
     }
+    const now = Date.now();
+    entry.until = answer.ttl === null ? now : now + Math.min(answer.ttl * 1e3, MAX_TTL_MS);
+    if (entry.until > now && this.#cache.get(key) === entry)
+      this.#store?.put({ key, ech: answer.ech, until: entry.until });
+    return answer.ech;
   }
 };
 function wait(value) {
@@ -1703,6 +1759,8 @@ var EpoxyTransport = class {
   };
   /** by name, the one used longest ago first */
   partitions = /* @__PURE__ */ new Map();
+  /** the `ech_dns` lookups, per partition, when there is a DoH endpoint */
+  ech = null;
   initializing = null;
   client_version;
   client = null;
@@ -1725,15 +1783,20 @@ var EpoxyTransport = class {
       options.user_agent = navigator.userAgent;
       opts.forEach((x) => this.setopt(options, x));
       if (this.opts.ech_dns) {
-        const resolver = new EchResolver(this.opts.ech_dns, async (url, accept) => {
-          const res = await this.client.fetch(url, {
-            method: "GET",
-            headers: { accept },
-            redirect: "manual"
-          });
-          if (res.status !== 200) throw new Error(`DoH answered ${res.status}`);
-          return await res.arrayBuffer();
-        });
+        const resolver = new EchResolver(
+          this.opts.ech_dns,
+          async (url, accept) => {
+            const res = await this.client.fetch(url, {
+              method: "GET",
+              headers: { accept },
+              redirect: "manual"
+            });
+            if (res.status !== 200) throw new Error(`DoH answered ${res.status}`);
+            return await res.arrayBuffer();
+          },
+          this.opts.ech_cache
+        );
+        this.ech = resolver;
         options.ech_resolver = resolver.resolve;
       }
       this.client = new EpoxyClient(this.wisp, options);
@@ -1816,7 +1879,14 @@ var EpoxyTransport = class {
       this.partitions.delete(other);
       over--;
     }
-    const partition = { client: this.client.partition(), inFlight: 0, used: now };
+    const ech = this.ech;
+    const partition = {
+      client: this.client.partition(
+        ech ? (host) => ech.resolveIn(name, host) : void 0
+      ),
+      inFlight: 0,
+      used: now
+    };
     this.partitions.set(name, partition);
     return partition;
   }
