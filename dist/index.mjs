@@ -301,7 +301,7 @@ function __wbg_adapter_48(arg0, arg1) {
 function __wbg_adapter_51(arg0, arg1) {
   wasm._dyn_core_4cd9c441d6dc076___ops__function__FnMut_____Output______as_wasm_bindgen_25e686593336e3a9___closure__WasmClosure___describe__invoke______(arg0, arg1);
 }
-function __wbg_adapter_164(arg0, arg1, arg2, arg3) {
+function __wbg_adapter_166(arg0, arg1, arg2, arg3) {
   wasm.wasm_bindgen_25e686593336e3a9___convert__closures__invoke2_mut___wasm_bindgen_25e686593336e3a9___JsValue__wasm_bindgen_25e686593336e3a9___JsValue_____(arg0, arg1, addHeapObject(arg2), addHeapObject(arg3));
 }
 var __wbindgen_enum_BinaryType = ["blob", "arraybuffer"];
@@ -1180,7 +1180,7 @@ function __wbg_get_imports() {
         const a = state0.a;
         state0.a = 0;
         try {
-          return __wbg_adapter_164(a, state0.b, arg02, arg12);
+          return __wbg_adapter_166(a, state0.b, arg02, arg12);
         } finally {
           state0.a = a;
         }
@@ -1255,6 +1255,10 @@ function __wbg_get_imports() {
   };
   imports.wbg.__wbg_now_807e54c39636c349 = function() {
     const ret = Date.now();
+    return ret;
+  };
+  imports.wbg.__wbg_now_c86dc1804351e0d1 = function() {
+    const ret = performance.now();
     return ret;
   };
   imports.wbg.__wbg_now_d18023d54d4e5500 = function(arg0) {
@@ -1436,31 +1440,31 @@ function __wbg_get_imports() {
     const ret = false;
     return ret;
   };
-  imports.wbg.__wbindgen_closure_wrapper5500 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper5520 = function(arg0, arg1, arg2) {
     const ret = makeMutClosure(arg0, arg1, 187, __wbg_adapter_51);
     return addHeapObject(ret);
   };
-  imports.wbg.__wbindgen_closure_wrapper897 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper902 = function(arg0, arg1, arg2) {
     const ret = makeMutClosure(arg0, arg1, 187, __wbg_adapter_34);
     return addHeapObject(ret);
   };
-  imports.wbg.__wbindgen_closure_wrapper974 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper980 = function(arg0, arg1, arg2) {
     const ret = makeClosure(arg0, arg1, 18, __wbg_adapter_37);
     return addHeapObject(ret);
   };
-  imports.wbg.__wbindgen_closure_wrapper976 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper982 = function(arg0, arg1, arg2) {
     const ret = makeClosure(arg0, arg1, 22, __wbg_adapter_40);
     return addHeapObject(ret);
   };
-  imports.wbg.__wbindgen_closure_wrapper978 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper984 = function(arg0, arg1, arg2) {
     const ret = makeClosure(arg0, arg1, 22, __wbg_adapter_40);
     return addHeapObject(ret);
   };
-  imports.wbg.__wbindgen_closure_wrapper980 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper986 = function(arg0, arg1, arg2) {
     const ret = makeClosure(arg0, arg1, 18, __wbg_adapter_45);
     return addHeapObject(ret);
   };
-  imports.wbg.__wbindgen_closure_wrapper982 = function(arg0, arg1, arg2) {
+  imports.wbg.__wbindgen_closure_wrapper988 = function(arg0, arg1, arg2) {
     const ret = makeClosure(arg0, arg1, 22, __wbg_adapter_48);
     return addHeapObject(ret);
   };
@@ -1666,9 +1670,15 @@ var EchResolver = class _EchResolver {
     if (this.#store)
       this.#loading = this.#store.load().then((entries) => {
         const now = Date.now();
-        for (const { key, ech, until } of entries)
+        for (const { key, ech, until, answer } of entries)
           if (until > now && !this.#cache.has(key))
-            this.#cache.set(key, { until, value: Promise.resolve(ech) });
+            this.#cache.set(key, {
+              until,
+              value: Promise.resolve({
+                ech,
+                answer: answer instanceof ArrayBuffer || answer === null ? answer : void 0
+              })
+            });
       }).catch(() => {
       }).finally(() => this.#loading = null);
   }
@@ -1681,35 +1691,72 @@ ${name}`;
   resolve = (host) => this.resolveIn("", host);
   /** a lookup of `host` for the network partition `partition` (EpoxyClient.partition's resolver) */
   resolveIn(partition, host) {
+    const found = this.#lookup(partition, host, false);
+    return found ? wait(found.then((it) => it.ech)) : Promise.resolve(null);
+  }
+  /**
+   * The DoH answer (wire format) to `host`'s HTTPS question in `partition`,
+   * the one `resolveIn` reads, or null when it is not asked or the lookup
+   * failed. Not bounded: the caller decides how long to wait. A copy each
+   * time, so the caller may transfer it.
+   */
+  async answerIn(partition, host) {
+    const found = await this.#lookup(partition, host, true);
+    return found?.answer ? found.answer.slice(0) : null;
+  }
+  /**
+   * the lookup of `host` in `partition`, asked once at a time; with
+   * `bytes`, an entry the host kept without the answer's bytes is asked
+   * again
+   */
+  #lookup(partition, host, bytes) {
     const name = host.toLowerCase().replace(/\.$/, "");
     if (name === this.#dns.hostname || !name.includes(".") || /^[\d.]+$|:|^\[/.test(name) || /(^|\.)(localhost|local|internal|test|invalid)$/.test(name))
-      return Promise.resolve(null);
-    if (this.#loading) return this.#loading.then(() => this.resolveIn(partition, host));
+      return null;
+    if (this.#loading)
+      return this.#loading.then(() => this.#lookup(partition, host, bytes) ?? NONE);
     const key = _EchResolver.key(partition, name);
     const cached = this.#cache.get(key);
-    if (cached && cached.until > Date.now()) return wait(cached.value);
+    if (cached && cached.until > Date.now()) {
+      if (!bytes) return cached.value;
+      return cached.value.then(
+        (found) => found.answer !== void 0 ? found : this.#fresh(key, name)
+      );
+    }
+    return this.#fresh(key, name);
+  }
+  /** a new question for `name` under `key`; the entry stands for the lookup while it is out */
+  #fresh(key, name) {
     const entry = { until: Infinity, value: null };
     entry.value = this.#ask(key, name, entry);
     this.#cache.set(key, entry);
-    return wait(entry.value);
+    return entry.value;
   }
   async #ask(key, name, entry) {
     const url = new URL(this.#dns);
     url.searchParams.set("dns", base64url(httpsQuery(name)));
     let answer;
+    let bytes;
     try {
-      answer = parseHttps(await this.#fetch(url.href, "application/dns-message"));
+      bytes = await this.#fetch(url.href, "application/dns-message");
+      answer = parseHttps(bytes);
     } catch {
       entry.until = Date.now() + FAILED_MS;
-      return null;
+      return NONE;
     }
     const now = Date.now();
     entry.until = answer.ttl === null ? now : now + Math.min(answer.ttl * 1e3, MAX_TTL_MS);
     if (entry.until > now && this.#cache.get(key) === entry)
-      this.#store?.put({ key, ech: answer.ech, until: entry.until });
-    return answer.ech;
+      this.#store?.put({
+        key,
+        ech: answer.ech,
+        until: entry.until,
+        answer: bytes.slice(0)
+      });
+    return { ech: answer.ech, answer: bytes };
   }
 };
+var NONE = { ech: null, answer: null };
 function wait(value) {
   return Promise.race([
     value,
@@ -1744,6 +1791,20 @@ function loadEpoxy() {
 var PARTITION_FIELD = "$stomp$network";
 var PARTITION_IDLE_MS = 5 * 60 * 1e3;
 var PARTITIONS_KEPT = 64;
+function connectionTiming(told, from) {
+  if (!told) return void 0;
+  const out = { reused: !!told.reused };
+  for (const key of [
+    "dnsStart",
+    "dnsEnd",
+    "connectStart",
+    "secureStart",
+    "connectEnd",
+    "requestStart"
+  ])
+    if (typeof told[key] === "number") out[key] = told[key] - from;
+  return out;
+}
 var EpoxyTransport = class {
   ready = false;
   // What this build does with the request fields a host sends in Chrome's
@@ -1755,7 +1816,14 @@ var EpoxyTransport = class {
     priority: true,
     partition: PARTITION_FIELD,
     // each response says which HTTP version it came over (httpVersion)
-    httpVersion: true
+    httpVersion: true,
+    // each response says when its connection was made, or that it was a
+    // kept one (connection), and how many bytes its body came as before
+    // a Content-Encoding was decoded (encodedBytes)
+    timing: true,
+    // httpsAnswer(host, headers): the HTTPS record answer the ECH lookup
+    // reads, one question per name and partition for both
+    httpsAnswer: true
   };
   /** by name, the one used longest ago first */
   partitions = /* @__PURE__ */ new Map();
@@ -1809,7 +1877,26 @@ var EpoxyTransport = class {
   }
   async meta() {
   }
+  /**
+   * The DoH answer (DNS wire format, the server's bytes) to `host`'s HTTPS
+   * question in the network partition `headers` name (PARTITION_FIELD, as
+   * `request` reads it; "" without one), the answer the ECH lookup before a
+   * handshake in that partition reads: a request to the host there after
+   * it, or one already looking it up, asks no second time, and another
+   * partition asks its own. `null` without `ech_dns`, for a name that is
+   * not asked (an address, a local name, the DoH server's own) or when the
+   * lookup failed. A fresh ArrayBuffer each call.
+   */
+  async httpsAnswer(host, headers) {
+    if (!this.opts.ech_dns) return null;
+    await this.init();
+    let partition = "";
+    for (const [key, value] of headers ?? [])
+      if (key.toLowerCase() === PARTITION_FIELD) partition = value;
+    return await this.ech?.answerIn(partition, host) ?? null;
+  }
   async request(remote, method, body, headers, signal) {
+    const asked = performance.now();
     if (body instanceof Blob) body = await body.arrayBuffer();
     let partition = null;
     try {
@@ -1843,15 +1930,26 @@ var EpoxyTransport = class {
           headersEntries.push([key, value]);
         }
       }
-      return {
+      const response = {
         body: res.body,
         headers: headersEntries,
         status: res.status,
         statusText: res.statusText,
         // "1.1", "2" and so on: a host queues HTTP/1 requests six to a
         // server as a browser does, and lets HTTP/2 ones go
-        httpVersion: res.httpVersion
+        httpVersion: res.httpVersion,
+        // { reused, dnsStart?, dnsEnd?, connectStart?, secureStart?,
+        // connectEnd?, requestStart? }: ms from this call, as a
+        // browser's resource timing tells a connection
+        connection: connectionTiming(res.connection, asked)
       };
+      Object.defineProperty(response, "encodedBytes", {
+        value: () => res.encoded?.bytes ?? 0,
+        enumerable: false,
+        configurable: true,
+        writable: true
+      });
+      return response;
     } catch (err) {
       console.error(err);
       throw err;

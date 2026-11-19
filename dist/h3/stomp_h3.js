@@ -186,7 +186,7 @@ function __wbg_adapter_37(arg0, arg1, arg2) {
     wasm.closure160_externref_shim(arg0, arg1, arg2);
 }
 
-function __wbg_adapter_105(arg0, arg1, arg2, arg3) {
+function __wbg_adapter_109(arg0, arg1, arg2, arg3) {
     wasm.closure110_externref_shim(arg0, arg1, arg2, arg3);
 }
 
@@ -222,9 +222,12 @@ export class H3Connection {
     /**
      * Run one request. `headers` is `[name, value][]` in the order to send;
      * `body` is null, a Uint8Array, or a ReadableStream of Uint8Array.
-     * Resolves to `{ status, headers: [name, value][], body: ReadableStream | null }`
-     * once the response head arrives; the body streams after that, decoded
-     * from gzip, deflate, br or zstd the way epoxy decodes it.
+     * Resolves to `{ status, headers: [name, value][], body: ReadableStream | null,
+     * encoded: { bytes } }` once the response head arrives; the body streams
+     * after that, decoded from gzip, deflate, br or zstd the way epoxy
+     * decodes it. `encoded.bytes` counts the DATA bytes as they came, before
+     * the decoding (a browser's encodedBodySize), and is the whole body's
+     * once the stream has ended.
      * @param {string} method
      * @param {string} url
      * @param {Array<any>} headers
@@ -240,10 +243,29 @@ export class H3Connection {
         return ret;
     }
     /**
+     * When the handshake ended, in this realm's `performance.now()` (a
+     * browser's connectEnd)
+     * @returns {number}
+     */
+    get connectEnd() {
+        const ret = wasm.h3connection_connectEnd(this.__wbg_ptr);
+        return ret;
+    }
+    /**
      * @returns {number}
      */
     get handshake_ms() {
         const ret = wasm.h3connection_handshake_ms(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * When `connect` was called, the Initial about to go out, in this
+     * realm's `performance.now()` (a browser's connectStart and, QUIC's
+     * handshake being its TLS one, secureConnectionStart)
+     * @returns {number}
+     */
+    get connectStart() {
+        const ret = wasm.h3connection_connectStart(this.__wbg_ptr);
         return ret;
     }
     /**
@@ -782,7 +804,7 @@ function __wbg_get_imports() {
                 const a = state0.a;
                 state0.a = 0;
                 try {
-                    return __wbg_adapter_105(a, state0.b, arg0, arg1);
+                    return __wbg_adapter_109(a, state0.b, arg0, arg1);
                 } finally {
                     state0.a = a;
                 }
@@ -835,6 +857,10 @@ function __wbg_get_imports() {
     };
     imports.wbg.__wbg_now_807e54c39636c349 = function() {
         const ret = Date.now();
+        return ret;
+    };
+    imports.wbg.__wbg_now_d87e1d6b49a4ca67 = function() {
+        const ret = performance.now();
         return ret;
     };
     imports.wbg.__wbg_of_66b3ee656cbd962b = function(arg0, arg1) {
@@ -945,11 +971,11 @@ function __wbg_get_imports() {
         const ret = false;
         return ret;
     };
-    imports.wbg.__wbindgen_closure_wrapper1624 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper1628 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 93, __wbg_adapter_34);
         return ret;
     };
-    imports.wbg.__wbindgen_closure_wrapper4413 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper4417 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 93, __wbg_adapter_37);
         return ret;
     };

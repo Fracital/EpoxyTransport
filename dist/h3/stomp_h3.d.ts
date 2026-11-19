@@ -28,9 +28,12 @@ export class H3Connection {
   /**
    * Run one request. `headers` is `[name, value][]` in the order to send;
    * `body` is null, a Uint8Array, or a ReadableStream of Uint8Array.
-   * Resolves to `{ status, headers: [name, value][], body: ReadableStream | null }`
-   * once the response head arrives; the body streams after that, decoded
-   * from gzip, deflate, br or zstd the way epoxy decodes it.
+   * Resolves to `{ status, headers: [name, value][], body: ReadableStream | null,
+   * encoded: { bytes } }` once the response head arrives; the body streams
+   * after that, decoded from gzip, deflate, br or zstd the way epoxy
+   * decodes it. `encoded.bytes` counts the DATA bytes as they came, before
+   * the decoding (a browser's encodedBodySize), and is the whole body's
+   * once the stream has ended.
    */
   request(method: string, url: string, headers: Array<any>, body: any): Promise<any>;
   close(): void;
@@ -38,7 +41,18 @@ export class H3Connection {
    * The connection's smoothed RTT and datagram counters.
    */
   stats(): any;
+  /**
+   * When the handshake ended, in this realm's `performance.now()` (a
+   * browser's connectEnd)
+   */
+  readonly connectEnd: number;
   readonly handshake_ms: number;
+  /**
+   * When `connect` was called, the Initial about to go out, in this
+   * realm's `performance.now()` (a browser's connectStart and, QUIC's
+   * handshake being its TLS one, secureConnectionStart)
+   */
+  readonly connectStart: number;
   /**
    * False once the connection closed (idle timeout, GOAWAY, error).
    */
@@ -179,6 +193,8 @@ export interface InitOutput {
   readonly connect_webtransport: (a: number, b: number, c: any, d: any, e: any) => any;
   readonly h3connection_alive: (a: number) => number;
   readonly h3connection_close: (a: number) => void;
+  readonly h3connection_connectEnd: (a: number) => number;
+  readonly h3connection_connectStart: (a: number) => number;
   readonly h3connection_handshake_ms: (a: number) => number;
   readonly h3connection_pings: (a: number) => number;
   readonly h3connection_request: (a: number, b: number, c: number, d: number, e: number, f: any, g: any) => any;

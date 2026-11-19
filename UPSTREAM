@@ -40,6 +40,7 @@ ring 0.17.14
 ./epoxy-tls/0075-client-a-function-transport-s-writes-never-wait-so-c.patch
 ./epoxy-tls/0076-client-decode-every-frame-of-a-zstd-body-as-Chrome-d.patch
 ./epoxy-tls/0077-build-take-ring-from-the-patched-sibling-checkout.patch
+./epoxy-tls/0078-client-a-response-says-when-its-connection-was-made-an.patch
 ./epoxy-tls/0080-client-a-partition-may-be-given-an-ECH-resolver-of-i.patch
 ./epoxy-tls/0081-client-an-idle-HTTP-1-connection-is-closed-after-300.patch
 ./epoxy-transport/0001-Build-against-the-sibling-epoxy-tls-checkout-epoxy-t.patch
@@ -51,7 +52,9 @@ ring 0.17.14
 ./epoxy-transport/0053-build-ship-the-epoxy-wasm-as-a-separate-file-not-bas.patch
 ./epoxy-transport/0054-request-each-network-partition-on-a-pool-of-its-own-.patch
 ./epoxy-transport/0055-request-pass-on-the-HTTP-version-a-response-came-ove.patch
+./epoxy-transport/0056-request-pass-on-when-the-connection-was-made-and-the-.patch
 ./epoxy-transport/0060-ech_dns-answers-kept-per-network-partition-for-their.patch
+./epoxy-transport/0061-ech-one-HTTPS-question-per-name-and-partition-answer.patch
 ./h2-wasm/0050-client-send-pseudo-headers-in-Chrome-s-order-method-.patch
 ./h2-wasm/0051-client-open-each-request-with-a-HEADERS-priority-as-.patch
 ./h2-wasm/0052-client-hang-each-request-stream-in-Chrome-s-priority.patch
@@ -73,4 +76,4 @@ ring 0.17.14
 ./rustls/0053-client-TLS-1.2-RSA-key-transport-for-the-TLS_RSA_WIT.patch
 ./rustls/0054-client-refuse-the-ServerHellos-BoringSSL-refuses.patch
 ./rustls/0055-client-chrome_hello-offers-its-first-groups-key-shar.patch
-stomp-h3 99ceed4bb7a0
+stomp-h3 b41fdaaa84fb

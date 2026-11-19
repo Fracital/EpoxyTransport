@@ -46,6 +46,8 @@ export default class EpoxyTransport implements ProxyTransport {
         priority: boolean;
         partition: string;
         httpVersion: boolean;
+        timing: boolean;
+        httpsAnswer: boolean;
     };
     /** by name, the one used longest ago first */
     private partitions;
@@ -62,6 +64,17 @@ export default class EpoxyTransport implements ProxyTransport {
     setopt(opts: EpoxyClientOptions, opt: string): void;
     init(): Promise<void>;
     meta(): Promise<void>;
+    /**
+     * The DoH answer (DNS wire format, the server's bytes) to `host`'s HTTPS
+     * question in the network partition `headers` name (PARTITION_FIELD, as
+     * `request` reads it; "" without one), the answer the ECH lookup before a
+     * handshake in that partition reads: a request to the host there after
+     * it, or one already looking it up, asks no second time, and another
+     * partition asks its own. `null` without `ech_dns`, for a name that is
+     * not asked (an address, a local name, the DoH server's own) or when the
+     * lookup failed. A fresh ArrayBuffer each call.
+     */
+    httpsAnswer(host: string, headers?: RawHeaders): Promise<ArrayBuffer | null>;
     request(remote: URL, method: string, body: BodyInit | null, headers: RawHeaders, signal: AbortSignal | undefined): Promise<TransferrableResponse>;
     /** the client of the partition `name`, made over this client's wisp connection the first time */
     private partition;

@@ -15,11 +15,19 @@ export interface HttpsAnswer {
  * answer (too short, an error other than NXDOMAIN) throws.
  */
 export declare function parseHttps(message: ArrayBuffer): HttpsAnswer;
-/** one kept answer: a partition's name (`EchResolver.key`), its ECH config list or none, and when it is stale (ms since the epoch) */
+/**
+ * one kept answer: a partition's name (`EchResolver.key`), its ECH config
+ * list or none, when it is stale (ms since the epoch), and the DoH answer
+ * itself (wire format), which `httpsAnswer` gives a host. A host that keeps
+ * `answer` across a reload saves the name a second question there; an
+ * entry that comes back without it still serves ECH, and the first
+ * `httpsAnswer` for it asks again.
+ */
 export interface EchCacheEntry {
     key: string;
     ech: Uint8Array | null;
     until: number;
+    answer?: ArrayBuffer | null;
 }
 /**
  * Where a host keeps answers across the realm's end (a reload, a new tab):
@@ -31,7 +39,13 @@ export interface EchCache {
     put(entry: EchCacheEntry): void;
 }
 type Fetch = (url: string, accept: string) => Promise<ArrayBuffer>;
-/** ECH config lists by network partition and host name, from one DoH endpoint, with their TTLs */
+/**
+ * HTTPS records by network partition and host name, from one DoH endpoint,
+ * with their TTLs: one question per name and partition answers both the ECH
+ * config list epoxy-tls asks for before a handshake (`resolveIn`) and the
+ * host's own reading of the record (`answerIn`: its alpn and port), and a
+ * lookup out is shared by every caller in its partition
+ */
 export declare class EchResolver {
     #private;
     constructor(dns: string, fetch: Fetch, store?: EchCache | null);
@@ -41,5 +55,12 @@ export declare class EchResolver {
     resolve: (host: string) => Promise<Uint8Array | null>;
     /** a lookup of `host` for the network partition `partition` (EpoxyClient.partition's resolver) */
     resolveIn(partition: string, host: string): Promise<Uint8Array | null>;
+    /**
+     * The DoH answer (wire format) to `host`'s HTTPS question in `partition`,
+     * the one `resolveIn` reads, or null when it is not asked or the lookup
+     * failed. Not bounded: the caller decides how long to wait. A copy each
+     * time, so the caller may transfer it.
+     */
+    answerIn(partition: string, host: string): Promise<ArrayBuffer | null>;
 }
 export {};
