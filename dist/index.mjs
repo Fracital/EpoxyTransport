@@ -1776,9 +1776,94 @@ var opts = [
   "buffer_size",
   "pem_files"
 ];
+var SIMD_PROBE = new Uint8Array([
+  0,
+  97,
+  115,
+  109,
+  1,
+  0,
+  0,
+  0,
+  1,
+  5,
+  1,
+  96,
+  0,
+  1,
+  123,
+  3,
+  2,
+  1,
+  0,
+  10,
+  10,
+  1,
+  8,
+  0,
+  65,
+  0,
+  253,
+  15,
+  253,
+  98,
+  11
+]);
+var BULK_MEMORY_PROBE = new Uint8Array([
+  0,
+  97,
+  115,
+  109,
+  1,
+  0,
+  0,
+  0,
+  1,
+  4,
+  1,
+  96,
+  0,
+  0,
+  3,
+  2,
+  1,
+  0,
+  5,
+  3,
+  1,
+  0,
+  1,
+  10,
+  14,
+  1,
+  12,
+  0,
+  65,
+  0,
+  65,
+  0,
+  65,
+  0,
+  252,
+  10,
+  0,
+  0,
+  11
+]);
+function simdModule() {
+  const base = import.meta.url;
+  if (typeof base !== "string") return void 0;
+  try {
+    if (!WebAssembly.validate(SIMD_PROBE)) return void 0;
+    if (!WebAssembly.validate(BULK_MEMORY_PROBE)) return void 0;
+  } catch {
+    return void 0;
+  }
+  return { module_or_path: new URL("epoxy-simd.wasm", base) };
+}
 var epoxyLoaded = null;
 function loadEpoxy() {
-  epoxyLoaded ??= epoxy_default().then(
+  epoxyLoaded ??= epoxy_default(simdModule()).then(
     () => {
     },
     (error) => {
