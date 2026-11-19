@@ -4,6 +4,7 @@ epoxy-transport 170cb1c87f916919d4c5f283b73f91afcda068aa
 hyper 621d8e4d7788bfd2d62d15d40a73efae7f9a0bf0
 h2-wasm 2852a7c94b92f0433a1e2e5107ff4fe56db09cc7
 rustls 0.23.29
+ring 0.17.14
 ./epoxy-tls/0001-client-allow-256-KiB-HTTP-2-response-header-blocks-C.patch
 ./epoxy-tls/0002-build-take-hyper-util-wasm-from-the-patched-sibling-.patch
 ./epoxy-tls/0003-wisp-finish-closing-a-stream-instead-of-leaving-the-.patch
@@ -38,6 +39,7 @@ rustls 0.23.29
 ./epoxy-tls/0074-client-a-write-of-bytes-is-taken-as-it-is-without-a-.patch
 ./epoxy-tls/0075-client-a-function-transport-s-writes-never-wait-so-c.patch
 ./epoxy-tls/0076-client-decode-every-frame-of-a-zstd-body-as-Chrome-d.patch
+./epoxy-tls/0077-build-take-ring-from-the-patched-sibling-checkout.patch
 ./epoxy-transport/0001-Build-against-the-sibling-epoxy-tls-checkout-epoxy-t.patch
 ./epoxy-transport/0002-init-load-the-wasm-module-and-build-the-client-once-.patch
 ./epoxy-transport/0003-connect-report-the-subprotocol-the-server-chose.patch
@@ -60,10 +62,11 @@ rustls 0.23.29
 ./hyper/0050-client-title-case-HTTP-1-field-names-as-Chrome-spell.patch
 ./hyper/0051-client-an-empty-HTTP-2-request-body-adds-no-Content-.patch
 ./hyper/0052-client-say-when-a-request-s-connection-ended-before-a.patch
+./ring/0001-aes_nohw-64-bit-words-on-wasm32.patch
 ./rustls/0050-client-optional-Chrome-shaped-ClientHello-ClientConf.patch
 ./rustls/0051-crypto-HPKE-on-ring-for-Encrypted-Client-Hello-the-s.patch
 ./rustls/0052-client-real-ECH-in-a-Chrome-shaped-hello-as-BoringSS.patch
 ./rustls/0053-client-TLS-1.2-RSA-key-transport-for-the-TLS_RSA_WIT.patch
 ./rustls/0054-client-refuse-the-ServerHellos-BoringSSL-refuses.patch
 ./rustls/0055-client-chrome_hello-offers-its-first-groups-key-shar.patch
-stomp-h3 61ce3283a6de
+stomp-h3 a47207edd95b
