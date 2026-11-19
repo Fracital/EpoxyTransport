@@ -186,7 +186,7 @@ function __wbg_adapter_37(arg0, arg1, arg2) {
     wasm.closure160_externref_shim(arg0, arg1, arg2);
 }
 
-function __wbg_adapter_104(arg0, arg1, arg2, arg3) {
+function __wbg_adapter_105(arg0, arg1, arg2, arg3) {
     wasm.closure110_externref_shim(arg0, arg1, arg2, arg3);
 }
 
@@ -256,6 +256,17 @@ export class H3Connection {
     }
     close() {
         wasm.h3connection_close(this.__wbg_ptr);
+    }
+    /**
+     * The PING frames sent so far: the keep-alive's while a request is
+     * open, and the probes of a loss timeout with nothing to send again.
+     * Each one is acknowledged at once by a live peer, so the host times
+     * one as it times a request (Http3Transport's blackhole watch).
+     * @returns {number}
+     */
+    get pings() {
+        const ret = wasm.h3connection_pings(this.__wbg_ptr);
+        return ret;
     }
     /**
      * The connection's smoothed RTT and datagram counters.
@@ -771,7 +782,7 @@ function __wbg_get_imports() {
                 const a = state0.a;
                 state0.a = 0;
                 try {
-                    return __wbg_adapter_104(a, state0.b, arg0, arg1);
+                    return __wbg_adapter_105(a, state0.b, arg0, arg1);
                 } finally {
                     state0.a = a;
                 }
@@ -934,11 +945,11 @@ function __wbg_get_imports() {
         const ret = false;
         return ret;
     };
-    imports.wbg.__wbindgen_closure_wrapper1623 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper1624 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 93, __wbg_adapter_34);
         return ret;
     };
-    imports.wbg.__wbindgen_closure_wrapper4411 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper4413 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 93, __wbg_adapter_37);
         return ret;
     };

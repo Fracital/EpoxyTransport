@@ -43,6 +43,13 @@ export class H3Connection {
    * False once the connection closed (idle timeout, GOAWAY, error).
    */
   readonly alive: boolean;
+  /**
+   * The PING frames sent so far: the keep-alive's while a request is
+   * open, and the probes of a loss timeout with nothing to send again.
+   * Each one is acknowledged at once by a live peer, so the host times
+   * one as it times a request (Http3Transport's blackhole watch).
+   */
+  readonly pings: number;
 }
 export class IntoUnderlyingByteSource {
   private constructor();
@@ -173,6 +180,7 @@ export interface InitOutput {
   readonly h3connection_alive: (a: number) => number;
   readonly h3connection_close: (a: number) => void;
   readonly h3connection_handshake_ms: (a: number) => number;
+  readonly h3connection_pings: (a: number) => number;
   readonly h3connection_request: (a: number, b: number, c: number, d: number, e: number, f: any, g: any) => any;
   readonly h3connection_stats: (a: number) => any;
   readonly wtsession_accept_bi: (a: number) => any;
