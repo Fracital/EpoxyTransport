@@ -37,6 +37,7 @@ rustls 0.23.29
 ./epoxy-tls/0073-client-send-a-request-again-when-Chrome-would-after-.patch
 ./epoxy-tls/0074-client-a-write-of-bytes-is-taken-as-it-is-without-a-.patch
 ./epoxy-tls/0075-client-a-function-transport-s-writes-never-wait-so-c.patch
+./epoxy-tls/0076-client-decode-every-frame-of-a-zstd-body-as-Chrome-d.patch
 ./epoxy-transport/0001-Build-against-the-sibling-epoxy-tls-checkout-epoxy-t.patch
 ./epoxy-transport/0002-init-load-the-wasm-module-and-build-the-client-once-.patch
 ./epoxy-transport/0003-connect-report-the-subprotocol-the-server-chose.patch
@@ -65,4 +66,4 @@ rustls 0.23.29
 ./rustls/0053-client-TLS-1.2-RSA-key-transport-for-the-TLS_RSA_WIT.patch
 ./rustls/0054-client-refuse-the-ServerHellos-BoringSSL-refuses.patch
 ./rustls/0055-client-chrome_hello-offers-its-first-groups-key-shar.patch
-stomp-h3 2979b3e1ac32
+stomp-h3 61ce3283a6de
