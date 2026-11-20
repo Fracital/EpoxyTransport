@@ -59,6 +59,7 @@ ring 0.17.14
 ./epoxy-transport/0060-ech_dns-answers-kept-per-network-partition-for-their.patch
 ./epoxy-transport/0061-ech-one-HTTPS-question-per-name-and-partition-answer.patch
 ./epoxy-transport/0062-init-load-epoxy-simd.wasm-where-the-engine-has-SIMD1.patch
+./epoxy-transport/0063-init-take-epoxy.wasm-when-epoxy-simd.wasm-does-not-l.patch
 ./h2-wasm/0050-client-send-pseudo-headers-in-Chrome-s-order-method-.patch
 ./h2-wasm/0051-client-open-each-request-with-a-HEADERS-priority-as-.patch
 ./h2-wasm/0052-client-hang-each-request-stream-in-Chrome-s-priority.patch
