@@ -500,8 +500,10 @@ export class WtSession {
         return ret;
     }
     /**
-     * Resolves once quinn has taken every byte (its flow control and send
-     * buffer are the backpressure). Rejects "stop <n>", "gone".
+     * Resolves once quinn has taken every byte (its flow control is the
+     * backpressure) and the session's datagrams have carried all but
+     * `UNSENT_AHEAD` of what its streams were written. Rejects "stop <n>",
+     * "gone".
      * @param {number} handle
      * @param {Uint8Array} data
      * @returns {Promise<void>}
@@ -971,11 +973,11 @@ function __wbg_get_imports() {
         const ret = false;
         return ret;
     };
-    imports.wbg.__wbindgen_closure_wrapper1628 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper1629 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 93, __wbg_adapter_34);
         return ret;
     };
-    imports.wbg.__wbindgen_closure_wrapper4417 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper4418 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 93, __wbg_adapter_37);
         return ret;
     };

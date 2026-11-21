@@ -113,8 +113,10 @@ export class WtSession {
    */
   read(handle: number, max: number): Promise<any>;
   /**
-   * Resolves once quinn has taken every byte (its flow control and send
-   * buffer are the backpressure). Rejects "stop <n>", "gone".
+   * Resolves once quinn has taken every byte (its flow control is the
+   * backpressure) and the session's datagrams have carried all but
+   * `UNSENT_AHEAD` of what its streams were written. Rejects "stop <n>",
+   * "gone".
    */
   write(handle: number, data: Uint8Array): Promise<void>;
   /**
